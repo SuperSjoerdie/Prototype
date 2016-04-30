@@ -11,14 +11,18 @@ Type TShop = class TShop: TShop;
   Income: integer;
   ShopID: Integer;
   Owner: Pointer;
+  OwnerID: Integer;
   ShopIDsHad: Integer;
 
   protection: Integer;
   ProtectionPaid: boolean;
 
+  FightingTime: Integer;
+
   Bombed: Boolean;
   SecondsBombedLeft: Integer;
 
+  procedure Contest(ATTACKSCORE: Integer; DEFENSESCORE: Integer; HeatIncreaserWin: Integer; BombingSeconds: Integer; MoneyToSender: Integer; Sender: Integer; TakeOver: Boolean; HeatIncreaserLoser: Integer; ContestedShop: TShop; MenLostOnLose: Array of TMadeMen);
   procedure GetTakenOver(Sender: Pointer; HenchMen: Array of TMadeMen; Target: TShop);
   //procedure GetBombed(Sender: TGodfather; HenchMen: Array of TMadeMen; Target: TShop);
   procedure GetRaided(Sender: Pointer; HenchMen: Array of TMadeMen; Target: TShop);
@@ -52,7 +56,7 @@ end;
 
 implementation
 
-uses UGodfather;
+uses UGodfather, Game;
 
 constructor TListOfAllShops.Create;
 begin
@@ -65,6 +69,27 @@ begin
 end;
 
 {  ---  TSHOP  ---  }
+
+procedure TShop.Contest(ATTACKSCORE: Integer; DEFENSESCORE: Integer; HeatIncreaserWin: Integer; BombingSeconds: Integer; MoneyToSender: Integer; Sender: Integer; TakeOver: Boolean; HeatIncreaserLoser: Integer; ContestedShop: TShop; MenLostOnLose: Array of TMadeMen);
+var
+  i: Integer;
+  WinRatio: Integer;
+  Outcome: Integer;
+begin
+     WinRatio:= round((ATTACKSCORE / DEFENSESCORE)  * 100);
+     randomize;
+     Outcome:= random(99) + 1;
+     if Outcome < WinRatio then
+     begin
+       ContestedShop.OwnerID:= TGodfather(Sender).ID;
+       Inc(TGodfather(Sender).Heat, 10);
+       ShowMessage('Take over succeeded! You now own shop ' + ContestedShop.Name);
+     end else
+     for i := low(MenLostOnLose) to High(MenLostOnLose) do
+     MenLostOnLose[i].destroy;
+     inc(TGodfather(Sender).Heat, 5);
+     ShowMessage('Take over failed! You lost your men!');
+end;
 
 Constructor TSHop.create(ID: Integer);
 var
@@ -79,6 +104,7 @@ begin
      ShopID:= ID;
      p:= Self;
      ListOfAllShops.Add(p);
+     FightingTime:= 0;
 end;
 
 destructor TShop.Destroy;
@@ -89,10 +115,19 @@ end;
 procedure TShop.Handle;
 var
   y: integer;
+  i: Integer;
+  p: Pointer;
 begin
      if bombed = false then
         begin
-          Inc(TGodfather(Owner).Money, income);
+          for i:= 0 to ListOfAllGodFathers.Count - 1 do
+          begin
+           p:= ListOfAllGodFathers.Items[i];
+           if TGodfather(p).ID = ShopID then
+              begin
+                Inc(TGodfather(p).Money, Shop.Income)
+              end;
+          end;
         end;
      inc(y);
      if y > 300 then
@@ -150,7 +185,9 @@ begin
      TotalAScore:= TotalAAim + TotalADamage;
      TotalDScore:= TotalDAim + TotalDDamage;
 
-     WinRatio:= round((TotalAScore / TotalDScore)  * 100);
+     Contest(TotalAScore, TotalDScore, 10, 0, 0, TGodfather(Sender).ID, true, 5, Target, HenchMen);
+
+     {WinRatio:= round((TotalAScore / TotalDScore)  * 100);
      randomize;
      Outcome:= random(99) + 1;
      if Outcome < WinRatio then
@@ -162,7 +199,7 @@ begin
      for i := low(HenchMen) to High(HenchMen) do
      HenchMen[i].destroy;
      inc(TGodfather(Sender).Heat, 5);
-     ShowMessage('Take over failed! You lost your men!');
+     ShowMessage('Take over failed! You lost your men!');}
 end;
 
 procedure TShop.GetBombed(Sender: Pointer; HenchMan: TMadeMen; Target: TShop);

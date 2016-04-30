@@ -15,6 +15,7 @@ Type TLawPerson = class(TPerson)
      AgentBool: boolean;
 
      BribedBy: Pointer;
+     BribedByID: Integer;
 
      BribingPrice: Integer;
      function CalcBribingPrice: Integer;
@@ -145,7 +146,8 @@ procedure TLawPerson.GetBribed(Sender: Pointer; Bidding: Integer; Target: TLawPe
 begin
   If Bidding > Target.BribingPrice then
   begin
-    Target.BribedBy:= TGodfather(Sender);
+    //Target.BribedBy:= TGodfather(Sender);
+    Target.BribedByID:= TGodfather(Sender).ID;
     TGodfather(Sender).CheckForNYPD;
     TGodfather(Sender).CheckForJudges;
     TGodfather(Sender).CheckForAgents;

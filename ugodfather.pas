@@ -7,6 +7,28 @@ interface
 uses
   Classes, SysUtils, Dialogs, UPerson, UMadeMan, ULawPerson, UShop;
 
+{  ---  LISTS  ---  }
+Type TListOfAllOwnedMadeMen = class(TList)
+constructor create;
+destructor Destroy; override;
+
+end;
+
+Type TListOfAgents = class(TList)
+constructor Create;
+destructor Destroy; Override;
+end;
+
+Type TListOfJudges = class(TList)
+constructor Create;
+Destructor Destroy;
+end;
+
+Type TListOfNYPD = class(TList)
+constructor Create;
+destructor Destroy; Override;
+end;
+
 type TGodfather = class(TPerson)
      Money: Integer;
      ID: Integer;
@@ -17,6 +39,11 @@ type TGodfather = class(TPerson)
 
      RankUpTarget: TMadeMen;
      ShopTarget: TShop;
+
+     ListOfAllOwnedMadeMen: TListOfAllOwnedMadeMen;
+     ListOfJudges: TListOfJudges;
+     ListOfAgents: TListOfAgents;
+     ListOfNYPD: TListOfNYPD;
 
      Infiltrator: TMadeMen;
      Assassin: TMadeMen;
@@ -64,46 +91,25 @@ type TGodfather = class(TPerson)
 
 
 
-     constructor Create;
+     constructor Create(SendID: Integer);
      destructor destroy; override;
      procedure handle;
 
 
 
 end;
-    {  ---  LISTS  ---  }
-Type TListOfAllOwnedMadeMen = class(TList)
-  constructor create;
-  destructor Destroy; override;
 
-end;
-
-Type TListOfAgents = class(TList)
-  constructor Create;
-  destructor Destroy; Override;
-end;
-
-Type TListOfJudges = class(TList)
-  constructor Create;
-  Destructor Destroy;
-end;
-
-Type TListOfNYPD = class(TList)
-  constructor Create;
-  destructor Destroy; Override;
-end;
 
        var
         Godfather: TGodfather;
         //BiddingToBribe: Integer;
-        ListOfAllOwnedMadeMen: TListOfAllOwnedMadeMen;
-        ListOfJudges: TListOfJudges;
-        ListOfAgents: TListOfAgents;
-        ListOfNYPD: TListOfNYPD;
+
         //AssassinationTarget: TPerson;
         //Assassin: TPerson;
 
 implementation
+
+uses Game;
 
 //var
  //RankUpTarget: TMadeMen;
@@ -161,7 +167,7 @@ begin
 end;
 
 {  ---  TGODFATHER  ---  }
-constructor TGodfather.create;
+constructor TGodfather.create(SendID: Integer);
 begin
   inherited create;
   Money:= 500;
@@ -169,6 +175,10 @@ begin
   Heat:= 0;
   PaydaySecondsLeft:= 300;
   AOButtonMen:= 2;
+  ID:= SendID;
+
+  ListOfAllGodFathers.Add(self);
+
   mademan.create(Godfather);
   mademan.create(Godfather);
 end;
@@ -216,12 +226,13 @@ var
  i: Integer;
  p: pointer;
  a: pointer;
+ y: Integer;
 begin
 for i:= 0 to ListOfAllAgents.Count - 1 do
 begin
      p:= ListOfAllAgents[i];
-     a:= TAgent(p).BribedBy;
-     if TGodfather(a) = Self then
+     y:= TAgent(p).BribedByID;
+     if y = Self.ID then
      begin
        ListOfAgents.Add(TAgent(p));
      end;
@@ -234,12 +245,13 @@ var
  i: Integer;
  p: pointer;
  a: pointer;
+ y: Integer;
 begin
 for i:= 0 to ListOfAllJudges.Count - 1 do
 begin
      p:= ListOfAllJudges[i];
-     a:= TJudge(p).BribedBy;
-     if TGodfather(a) = Self then
+     y:= TJudge(p).BribedByID;
+     if y = Self.ID then
      begin
        ListOfJudges.Add(TJudge(p));
      end;
@@ -252,12 +264,13 @@ var
  i: Integer;
  p: pointer;
  a: pointer;
+ y: Integer;
 begin
 for i:= 0 to ListOfAllNYPD.Count - 1 do
 begin
      p:= ListOfAllNYPD[i];
-     a:= TNYPD(p).BribedBy;
-     if TGodfather(a) = Self then
+     y:= TNYPD(p).BribedByID;
+     if y = Self.ID then
      begin
        ListOfNYPD.Add(TNYPD(p));
      end;
@@ -314,30 +327,43 @@ procedure TGodfather.PayMen;
 var
  totalprice: Integer;
 begin
-     totalprice:= (AOButtonMen * 100) + (AOSoldiers * 200) + (AOCapo * 300) + (AOUnderboss * 500);
+     //totalprice:= (AOButtonMen * 100) + (AOSoldiers * 200) + (AOCapo * 300) + (AOUnderboss * 500);
+     TotalPrice:= ListOfAllOwnedMadeMen.count - 1;
      dec(Money, totalprice);
 end;
 
 procedure TGodfather.HireMen;
 var
  i: Integer;
+ y: integer;
+ a: Integer;
+ p: Pointer;
 begin
      if money > 500 then
      begin
-       if AOButtonMen < 5 then
+       for y:= 0 to ListOfAllOwnedMadeMen.Count - 1 do
        begin
-         dec(Money, 500);
-         mademan.GetHired(Godfather);
-         Inc(AOButtonMen);
-         CheckForMen;
+       p:= ListOfAllOwnedMadeMen.Items[y];
+       If Tmademen(p).Rank = 1 then
+       begin
+         inc(a);
+         if a < 5 then
+         begin
+           dec(Money, 500);
+           mademan.GetHired(Godfather);
+           Inc(AOButtonMen);
+           CheckForMen;
+         end else
+         begin
+         ShowMessage('You already have 5 buttonmen. Either rank one up or fire him!')
+         end;
+       end;
+
+       end;
        end else
        begin
-         ShowMessage('You already have 5 buttonmen. Either rank one up or fire him!')
-       end;
-     end else
-     begin
        ShowMessage('You need to pay $500 in order to do that!');
-     end;
+       end;
 end;
 
 procedure TGodfather.RankUpMen;

@@ -10,6 +10,7 @@ uses
 Type TPerson = class TPerson: TPerson;
   protection: Integer;
   Name: string;
+  Age: Integer;
 
   constructor Create;
   destructor Destroy; override;
@@ -27,6 +28,7 @@ begin
      Name:= 'Donald Duck';
      randomize;
      protection:= random(9) + 1;
+     Age:= random(19) + 21;
 end;
 
 destructor TPerson.Destroy;

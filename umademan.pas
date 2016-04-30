@@ -18,6 +18,7 @@ Type TMadeMen = class(TPerson)
      Costs: Integer;
 
      Boss: Pointer;
+     BossID: Integer;
 
      ID: Integer;
      IDHad: Integer;
@@ -59,6 +60,7 @@ end;
   var
     mademan: TMadeMen;
     ListOfAllMadeMen: TListOfAllMadeMen;
+    MadeMenIDHad: Integer;
 
 implementation
 
@@ -87,8 +89,10 @@ begin
   Rank:= 1;
   Costs:= 100;
 
-  ID:= IDHad + 1;
-  Inc(IDHad);
+  BustedSecondsLeft:= 0;
+
+  ID:= MadeMenIDHad + 1;
+  Inc(MadeMenIDHad);
 
   available:= true;
 
@@ -99,7 +103,7 @@ begin
   MaxSmarts:= 20;
   MaxRespect:= 10;
 
-  Boss:= TGodfather(Sender);
+  BossID:= TGodfather(Sender).ID;
 
   if damage + Aim + Smarts < 5 then
   inc(Smarts);
@@ -145,6 +149,7 @@ begin
       Target.MaxSuitLevel:= 5;
       Target.MaxGunLevel:= 5;
       MadeMan.Rankup(Target);
+      Inc(Rank);
     end;
   end else
   if rank = 2 then
@@ -152,6 +157,7 @@ begin
     if AmmountOfCapo < 3 then
     begin
       inc(AmmountOfCapo);
+      Inc(Rank);
       p:= Target.Boss;
       inc(TGodfather(p).AOCapo);
       dec(TGodfather(p).AOSoldiers);
@@ -163,6 +169,7 @@ begin
     if AmmountOfUnderboss < 1 then
     begin
       p:= Target.Boss;
+      Inc(Rank);
       inc(AmmountOfUnderboss);
       inc(TGodfather(p).AOUnderboss);
       dec(TGodfather(p).AOCapo);
