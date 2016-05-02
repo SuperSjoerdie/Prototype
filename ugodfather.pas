@@ -24,12 +24,29 @@ constructor Create;
 Destructor Destroy;
 end;
 
-Type TListOfNYPD = class(TList)
+Type
+
+{ TListOfNYPD }
+
+ TListOfNYPD = class(TList)
 constructor Create;
 destructor Destroy; Override;
 end;
 
-type TGodfather = class(TPerson)
+Type
+
+{ TListOfGodfathers }
+
+ TListOfGodfathers = class(TList)
+constructor Create;
+ destructor Destroy; override;
+end;
+
+type
+
+{ TGodfather }
+
+ TGodfather = class(TPerson)
      Money: Integer;
      ID: Integer;
      Heat: Integer;
@@ -95,6 +112,8 @@ type TGodfather = class(TPerson)
      destructor destroy; override;
      procedure handle;
 
+     Class procedure CreateNew(NewID: Integer);
+
 
 
 end;
@@ -102,6 +121,7 @@ end;
 
        var
         Godfather: TGodfather;
+        ListOfGodfathers: TListOfGodfathers;
         //BiddingToBribe: Integer;
 
         //AssassinationTarget: TPerson;
@@ -110,6 +130,18 @@ end;
 implementation
 
 uses Game;
+
+ { TListOfGodfathers }
+
+  constructor TListOfGodfathers.Create;
+ begin
+   inherited Create;
+ end;
+
+  destructor TListOfGodfathers.Destroy;
+begin
+  inherited Destroy;
+end;
 
 //var
  //RankUpTarget: TMadeMen;
@@ -167,7 +199,7 @@ begin
 end;
 
 {  ---  TGODFATHER  ---  }
-constructor TGodfather.create(SendID: Integer);
+constructor TGodfather.Create(SendID: Integer);
 begin
   inherited create;
   Money:= 500;
@@ -177,13 +209,13 @@ begin
   AOButtonMen:= 2;
   ID:= SendID;
 
-  ListOfAllGodFathers.Add(self);
+  //ListOfAllGodFathers.Add(self);
 
-  mademan.create(Godfather);
-  mademan.create(Godfather);
+  Tmademen.create(Godfather);
+  Tmademen.create(Godfather);
 end;
 
-Destructor TGodfather.destroy;
+destructor TGodfather.destroy;
 begin
   inherited Destroy;
 end;
@@ -201,6 +233,14 @@ begin
        inc(PaydaySecondsLeft, 300);
      end;
 
+end;
+
+class procedure TGodfather.CreateNew(NewID: Integer);
+var
+ p: TGodfather;
+begin
+  P:= TGodfather.Create(NewID);
+  ListOfAllGodFathers.Add(p);
 end;
 
 procedure TGodfather.Busted;

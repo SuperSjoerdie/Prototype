@@ -6,7 +6,11 @@ interface
 
 uses
   Classes, SysUtils, Dialogs, UMademan;
-Type TShop = class TShop: TShop;
+Type
+
+{ TShop }
+
+ TShop = class TShop: TShop;
   Name: string;
   Income: integer;
   ShopID: Integer;
@@ -22,7 +26,7 @@ Type TShop = class TShop: TShop;
   Bombed: Boolean;
   SecondsBombedLeft: Integer;
 
-  procedure Contest(ATTACKSCORE: Integer; DEFENSESCORE: Integer; HeatIncreaserWin: Integer; BombingSeconds: Integer; MoneyToSender: Integer; Sender: Integer; TakeOver: Boolean; HeatIncreaserLoser: Integer; ContestedShop: TShop; MenLostOnLose: Array of TMadeMen);
+  procedure Contest(ATTACKSCORE: Integer; DEFENSESCORE: Integer; HeatIncreaserWin: Integer; BombingSeconds: Integer; MoneyToSender: Integer; SenderID: Integer; TakeOver: Boolean; HeatIncreaserLoser: Integer; ContestedShop: TShop; MenLostOnLose: Array of TMadeMen; Sender: Pointer);
   procedure GetTakenOver(Sender: Pointer; HenchMen: Array of TMadeMen; Target: TShop);
   //procedure GetBombed(Sender: TGodfather; HenchMen: Array of TMadeMen; Target: TShop);
   procedure GetRaided(Sender: Pointer; HenchMen: Array of TMadeMen; Target: TShop);
@@ -30,6 +34,9 @@ Type TShop = class TShop: TShop;
 
   constructor Create(ID: Integer);
   destructor Destroy; override;
+
+  class procedure CreateNew(ID: Integer; ShopCreated: TShop);
+
   procedure handle;
 
   end;
@@ -70,9 +77,13 @@ end;
 
 {  ---  TSHOP  ---  }
 
-procedure TShop.Contest(ATTACKSCORE: Integer; DEFENSESCORE: Integer; HeatIncreaserWin: Integer; BombingSeconds: Integer; MoneyToSender: Integer; Sender: Integer; TakeOver: Boolean; HeatIncreaserLoser: Integer; ContestedShop: TShop; MenLostOnLose: Array of TMadeMen);
+procedure TShop.Contest(ATTACKSCORE: Integer; DEFENSESCORE: Integer;
+  HeatIncreaserWin: Integer; BombingSeconds: Integer; MoneyToSender: Integer;
+  SenderID: Integer; TakeOver: Boolean; HeatIncreaserLoser: Integer;
+  ContestedShop: TShop; MenLostOnLose: array of TMadeMen; Sender: Pointer);
 var
   i: Integer;
+  y: Integer;
   WinRatio: Integer;
   Outcome: Integer;
 begin
@@ -81,7 +92,8 @@ begin
      Outcome:= random(99) + 1;
      if Outcome < WinRatio then
      begin
-       ContestedShop.OwnerID:= TGodfather(Sender).ID;
+      // y:= TGodfather(Sender).ID;
+       ContestedShop.OwnerID:= SenderID;
        Inc(TGodfather(Sender).Heat, 10);
        ShowMessage('Take over succeeded! You now own shop ' + ContestedShop.Name);
      end else
@@ -91,9 +103,9 @@ begin
      ShowMessage('Take over failed! You lost your men!');
 end;
 
-Constructor TSHop.create(ID: Integer);
-var
-  p: Pointer;
+constructor TShop.Create(ID: Integer);
+{var
+  p: Pointer;    }
 begin
      Name:= 'McDonalds';
      Randomize;
@@ -102,8 +114,6 @@ begin
      //OwnerID:= 6;
      protection:= random(3);
      ShopID:= ID;
-     p:= Self;
-     ListOfAllShops.Add(p);
      FightingTime:= 0;
 end;
 
@@ -112,7 +122,12 @@ begin
      self.free;
 end;
 
-procedure TShop.Handle;
+class procedure TShop.CreateNew(ID: Integer; ShopCreated: TShop);
+begin
+     ListOfAllShops.Add(ShopCreated);
+end;
+
+procedure TShop.handle;
 var
   y: integer;
   i: Integer;
@@ -160,7 +175,8 @@ begin
      end;
 end;
 
-procedure TShop.GetTakenOver(Sender: Pointer; HenchMen: Array of TMadeMen; Target: TShop);
+procedure TShop.GetTakenOver(Sender: Pointer; HenchMen: array of TMadeMen;
+  Target: TShop);
 var
   i: Integer;
   TotalADamage: Integer;
@@ -185,7 +201,7 @@ begin
      TotalAScore:= TotalAAim + TotalADamage;
      TotalDScore:= TotalDAim + TotalDDamage;
 
-     Contest(TotalAScore, TotalDScore, 10, 0, 0, TGodfather(Sender).ID, true, 5, Target, HenchMen);
+     Contest(TotalAScore, TotalDScore, 10, 0, 0, TGodfather(Sender).ID, true, 5, Target, HenchMen, TGodfather(Sender));
 
      {WinRatio:= round((TotalAScore / TotalDScore)  * 100);
      randomize;
@@ -232,7 +248,8 @@ begin
 
 end;
 
-procedure TShop.GetRaided(Sender: Pointer; HenchMen: Array of TMadeMen; Target: TShop);
+procedure TShop.GetRaided(Sender: Pointer; HenchMen: array of TMadeMen;
+  Target: TShop);
 var
   i: Integer;
   TotalADamage: Integer;

@@ -32,9 +32,10 @@ Type  TNYPD = Class(TLawPerson)
       //Loyalty: Integer;
 
 
-constructor Create;
+constructor Create(ID: Integer);
 destructor Destroy; override;
 procedure handle;
+class procedure CreateNew(ID: Integer);
 
 end;
 
@@ -42,33 +43,49 @@ Type  TJudge = Class(TLawPerson)
       //Loyalty: Integer;
 
 
-constructor Create;
+constructor Create(ID: Integer);
 destructor Destroy; override;
 procedure handle;
+class procedure CreateNew(ID: Integer);
 
 end;
 
-Type  TAgent = Class(TLawPerson)
+Type
+
+{ TAgent }
+
+  TAgent = Class(TLawPerson)
       //Loyalty: Integer;
 
 
-constructor Create;
+constructor Create(ID: Integer);
 destructor Destroy; override;
 procedure handle;
+class procedure CreateNew(ID: Integer);
 
 end;
 
 Type TListOfAllAgents = class(TList)
      constructor create;
      destructor Destroy; override;
+    // class procedure CreateNew(ID: Integer);
 end;
 
-Type TListOfAllJudges = class(TList)
+Type
+
+{ TListOfAllJudges }
+
+ TListOfAllJudges = class(TList)
      constructor create;
      destructor Destroy; override;
+    // class procedure CreateNew(ID: Integer);
 end;
 
-Type TListOfAllNYPD = class(TList)
+Type
+
+{ TListOfAllNYPD }
+
+ TListOfAllNYPD = class(TList)
      constructor create;
      destructor Destroy; override;
 end;
@@ -109,6 +126,14 @@ begin
   inherited Destroy;
 end;
 
+class procedure TJudge.CreateNew(ID: Integer);
+var
+  p: TJudge;
+begin
+  p:= TJudge.Create(ID);
+  ListOfAllJudges.Add(p);
+end;
+
 constructor TListOfAllNYPD.create;
 begin
   inherited Create;
@@ -117,6 +142,14 @@ end;
 destructor TListOfAllNYPD.Destroy;
 begin
   inherited Destroy;
+end;
+
+class procedure TNYPD.CreateNew(ID: Integer);
+var
+  p: TNYPD;
+begin
+  p:= TNYPD.Create(ID);
+  ListOfAllNYPD.Add(p);
 end;
 
 {  ---  LAW PERSON  ---  }
@@ -158,7 +191,7 @@ begin
 end;
 
 {  ---  Agent  ---  }
-constructor TAgent.Create;
+constructor TAgent.Create(ID: Integer);
 begin
   inherited create;
   AgentBool:= true;
@@ -175,8 +208,16 @@ begin
 
 end;
 
+class procedure TAgent.CreateNew(ID: Integer);
+var
+  p: TAgent;
+begin
+  p:= TAgent.Create(ID);
+  ListOfAllAgents.Add(p);
+end;
+
 {  ---  NYPD  ---  }
-constructor TNYPD.Create;
+constructor TNYPD.Create(ID: Integer);
 begin
   inherited create;
   NYPDbool:= true;
@@ -196,7 +237,7 @@ begin
 end;
 
 {  ---  Judge  ---  }
-constructor TJudge.Create;
+constructor TJudge.Create(ID: Integer);
 begin
   inherited create;
   JudgeBool:= true;

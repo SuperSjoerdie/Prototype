@@ -118,6 +118,8 @@ type
     procedure handle;
     procedure Timer1Timer(Sender: TObject);
 
+    procedure AddToMenOnJob;
+
     procedure ShopScreenUpdate;
 
     procedure MadeManScreenUpdate;
@@ -256,28 +258,45 @@ begin
 end;
 
 procedure TForm1.Create(Sender: TObject);
+var
+  Shopp: pointer;
+//var
+  //ShopList: TList;
 begin
-  TargetedShopID:= 0;
-     Shop.Create(1);
-     Shop.Create(2);
-     Shop.Create(3);
+  TargetedShopID := 0;
 
-     Godfather.Create(1);
-     Godfather.Create(2);
-     Godfather.Create(3);
-     Godfather.Create(4);
-     Godfather.Create(5);
+ { ShopList := TList.Create;
 
-     NYPD.Create;
-     NYPD.Create;
-     NYPD.Create;
-     Judge.Create;
-     Judge.Create;
-     Judge.Create;
-     Judge.Create;
-     Judge.Create;
-     Agent.Create;
-     Agent.Create;
+  Shop := TShop.Create(1);
+  ShopList.Add(Shop); }
+
+  Timer1.Enabled:= false;
+
+  Shopp:= TShop.Create(1);
+  ListOfAllShops.Add(Shopp);
+  Shopp:= TShop.Create(2);
+  ListOfAllShops.Add(Shopp);
+  Shopp:= TShop.Create(3);
+  ListOfAllShops.Add(Shopp);
+
+     TGodfather.CreateNew(1);
+     TGodfather.Create(2);
+     TGodfather.Create(3);
+     TGodfather.Create(4);
+     TGodfather.Create(5);
+
+     TNYPD.CreateNew(1);
+     TNYPD.CreateNew(2);
+     TNYPD.CreateNew(3);
+     TJudge.CreateNew(1);
+     TJudge.CreateNew(2);
+     TJudge.CreateNew(3);
+     TJudge.CreateNew(4);
+     TJudge.CreateNew(5);
+     TAgent.CreateNew(1);
+     TAgent.CreateNew(2);
+
+     Timer1.Enabled:= true;
 end;
 
 procedure TForm1.BttnShop1Click(Sender: TObject);
@@ -291,7 +310,7 @@ begin
     P:= ListOfAllShops.Items[i];
     if TShop(p).ShopID = TargetedShopID then
     begin
-      TargetedShop:= TShop(p);
+      //TargetedShop:= TShop(p);
       LblShopName.Caption:= TShop(p).Name;
       LblShopIncome.Caption:= IntToStr(TShop(p).Income);
       LblShopGuarding.Caption:= IntToStr(TShop(p).protection);
@@ -522,10 +541,25 @@ begin
 end;
 
 procedure TForm1.BttnTakeOverClick(Sender: TObject);
+var
+  p: pointer;
 begin
   If TargetedShopID > 0 then
   begin
        Godfather.ShopTarget:= TargetedShop;
+       {if CBMan1.Checked = true then
+          begin
+              { for i := low(Godfather.MenOnJob) to high(Godfather.MenOnJob) do
+               begin
+                 y:= i;
+               end;
+               inc(y);
+               Godfather.MenOnJob[y]:= ;
+               Godfather.MenOnJob; }
+               p:= Godfather.ListOfAllOwnedMadeMen[0];
+               Form1.AddToMenOnJob(TMadeMen(p));
+          end;   }
+          Form1.AddToMenOnJob;
        Godfather.TakeOver;
   end;
 end;
@@ -566,6 +600,24 @@ begin
      Godfather.Handle;
      Person.Handle;
      Form1.Handle;
+end;
+
+procedure TForm1.AddToMenOnJob;
+var
+  i: integer;
+  y: Integer;
+  ManToAdd: pointer;
+begin
+  if CBMan1.Checked = true then
+  begin
+       ManToAdd:= Godfather.ListOfAllOwnedMadeMen.Items[0];
+   for i := low(Godfather.MenOnJob) to high(Godfather.MenOnJob) do
+   begin
+     y:= i;
+   end;
+   inc(y);
+   Godfather.MenOnJob[y]:= TMadeMen(ManToAdd);
+  end;
 end;
 
 {$R *.lfm}

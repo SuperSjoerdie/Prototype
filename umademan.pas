@@ -7,7 +7,11 @@ interface
 uses
   Classes, SysUtils, UPerson;
 
-Type TMadeMen = class(TPerson)
+Type
+
+{ TMadeMen }
+
+ TMadeMen = class(TPerson)
      Damage: Integer;
      GunLevel: Integer;
      SuitLevel: Integer;
@@ -45,6 +49,8 @@ Type TMadeMen = class(TPerson)
      constructor create (Sender: Pointer);
      procedure handle;
 
+     class procedure CreateNew(Sender: pointer);
+
      procedure RankUp(Target: TMadeMen);
      procedure RankUpCheck(Target: TMadeMen);
 
@@ -76,7 +82,7 @@ begin
   inherited Destroy;
 end;
 
-constructor TMadeMen.Create (Sender: Pointer);
+constructor TMadeMen.create(Sender: Pointer);
 begin
   inherited create;
   randomize;
@@ -110,12 +116,12 @@ begin
   Inc(Damage);
 end;
 
-destructor TMadeMen.Destroy;
+destructor TMadeMen.destroy;
 begin
   Self.Free;
 end;
 
-procedure TMadeMen.Handle;
+procedure TMadeMen.handle;
 begin
      if BustedSecondsLeft > 0 then
      begin
@@ -127,11 +133,22 @@ begin
      end;
 end;
 
+class procedure TMadeMen.CreateNew(Sender: Pointer);
+var
+p: TMadeMen;
+begin
+     p:= TMadeMen.create(Sender);
+     ListOfAllMadeMen.Add(p);
+end;
+
 procedure TMadeMen.GetHired(Sender: Pointer);
+var
+p: TMadeMen;
 begin
   inc(AmmountOfButtonMen);
   inc(TGodfather(Sender).AOButtonMen);
-  mademan.create(Sender);
+  P:= Tmademen.create(Sender);
+  ListOfAllMadeMen.Add(p);
 end;
 
 procedure TMadeMen.RankUpCheck(Target: TMadeMen);
